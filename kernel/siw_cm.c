@@ -392,8 +392,6 @@ static int siw_cm_upcall(struct siw_cep *cep, enum iw_cm_event_type reason,
 	}
 	if (reason == IW_CM_EVENT_CONNECT_REQUEST) {
 		event.provider_data = cep;
-		event.private_data = cep->mpa.pdata;
-		event.private_data_len = cep->mpa.hdr.params.pd_len;
 		cm_id = cep->listen_cep->cm_id;
 	} else
 		cm_id = cep->cm_id;
@@ -1769,8 +1767,8 @@ int siw_accept(struct iw_cm_id *id, struct iw_cm_conn_param *params)
 			}
 		}
 		if (params->ird < cep->ord) {
-			if (!RELAXED_IRD_NEGOTIATION &&
-			    cep->ord > sdev->attrs.max_ord) {
+			if (RELAXED_IRD_NEGOTIATION &&
+			    cep->ord <= sdev->attrs.max_ord) {
 				params->ird = cep->ord;
 			} else {
 				rv = -ENOMEM;
